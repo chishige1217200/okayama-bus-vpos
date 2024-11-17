@@ -1,25 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { GoogleMap, LoadScript } from "@react-google-maps/api";
 
-function App() {
+const containerStyle = {
+  height: "100vh",
+  width: "100%",
+};
+
+const center = {
+  lat: 34.66300000,
+  lng: 133.9250000,
+};
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <LoadScript googleMapsApiKey="YOUR API KEY">
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={center}
+        zoom={17}
+      ></GoogleMap>
+    </LoadScript>
   );
-}
+};
 
 export default App;
