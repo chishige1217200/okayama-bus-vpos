@@ -53,7 +53,7 @@ const App = () => {
   }, []);
 
   return (
-    <LoadScript googleMapsApiKey="YOUR API KEY">
+    <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}>
       <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={17}>
         {content}
       </GoogleMap>
