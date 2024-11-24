@@ -106,10 +106,10 @@ const App = () => {
                 >
                   <div>
                     <h4>{marker.title}</h4>
-                    <p>
+                    <p style={{ textAlign: "center" }}>
                       {marker.id}号車
                       <br />
-                      次は {marker.nextStopName}
+                      <b>次は {marker.nextStopName}</b>
                     </p>
                   </div>
                 </InfoWindowF>
