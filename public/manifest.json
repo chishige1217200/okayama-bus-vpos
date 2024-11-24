@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "バス位置情報",
+  "name": "岡山バス位置情報",
   "icons": [
     {
       "src": "favicon.ico",
