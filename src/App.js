@@ -1,5 +1,11 @@
-import React from "react";
-import { GoogleMap, LoadScript, MarkerF } from "@react-google-maps/api";
+import React, { useEffect, useState } from "react";
+import {
+  GoogleMap,
+  InfoWindowF,
+  LoadScript,
+  MarkerF,
+} from "@react-google-maps/api";
+import axios from "axios";
 
 const containerStyle = {
   height: "100vh",
@@ -11,36 +17,44 @@ const center = {
   lng: 133.925,
 };
 
-const positionF1302 = {
-  lat: 34.51649856567383,
-  lng: 133.89849853515625,
-};
-
-const positionF1908 = {
-  lat: 34.62188720703125,
-  lng: 133.9432830810547,
-};
-
 const App = () => {
-  // TODO:ここにバス情報ロード処理が必要
+  const [markers, setMarkers] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await axios.get("https://okayama-bus-json.vercel.app");
+        const data = response.data;
+        // console.log(data);
+        if (data !== undefined && data !== null && data.length !== 0) {
+          // データをもとにマーカー要素を作成
+          const markerElements = data.map((marker, index) => (
+            <MarkerF
+              key={marker.vehicle.vehicle.label}
+              position={{
+                lat: marker.vehicle.position.latitude,
+                lng: marker.vehicle.position.longitude,
+              }}
+              title={marker.title}
+              icon={{
+                url: marker.icon,
+                scaledSize: new window.google.maps.Size(60, 60),
+              }}
+            />
+          ));
+
+          setMarkers(markerElements);
+        }
+      } catch (error) {
+        console.error("Error fetching markers:", error);
+      }
+    })();
+  }, []);
 
   return (
     <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}>
       <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={17}>
-        <MarkerF
-          position={positionF1302}
-          icon={
-            "https://loc.bus-vision.jp/ryobi/view/images/common/busicon/10000/2/201_s.png"
-          }
-          label={"F1302"}
-        />
-        <MarkerF
-          position={positionF1908}
-          icon={
-            "https://loc.bus-vision.jp/ryobi/view/images/common/busicon/10000/2/209_s.png"
-          }
-          label={"F1908"}
-        />
+        {markers}
       </GoogleMap>
     </LoadScript>
   );
