@@ -30,7 +30,8 @@ const App = () => {
       if (data && data.length > 0) {
         // マーカー情報を状態として保存
         const formattedMarkers = data.map((marker) => ({
-          id: marker.vehicle.vehicle.label, // 一意のID
+          id: marker.vehicle.vehicle.id, // 一意のID
+          label: marker.vehicle.vehicle.label,
           position: {
             lat: marker.vehicle.position.latitude,
             lng: marker.vehicle.position.longitude,
@@ -100,8 +101,8 @@ const App = () => {
                 データ提供元：
                 <a href="https://loc.bus-vision.jp/ryobi/view/opendata.html">
                   Bus-Vision
-                </a>　
-                バス事業者：
+                </a>
+                　バス事業者：
                 <a href="https://www.ryobi-holdings.jp/bus/">両備バス</a>
               </p>
             </div>
@@ -130,9 +131,21 @@ const App = () => {
                   <div>
                     <h4 style={{ textAlign: "center" }}>{marker.title}</h4>
                     <p style={{ textAlign: "center" }}>
-                      {marker.id}号車
+                      {marker.label}号車
                       <br />
                       <b>次は {marker.nextStopName}</b>
+                      <br />
+                      <a
+                        href={
+                          "https://loc.bus-vision.jp/ryobi/view/vehicleState.html?vehicleCorpCd=3&vehicleCd=" +
+                          marker.id +
+                          "&lang=0"
+                        } // 両備バス以外はvehicleCorpCdが違う
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        詳しい運行状況
+                      </a>
                     </p>
                   </div>
                 </InfoWindowF>
