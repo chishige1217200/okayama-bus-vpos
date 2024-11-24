@@ -39,8 +39,9 @@ const App = () => {
           title: marker.tripUpdate.trip.routeShortName,
           icon: marker.icon,
           nextStopName:
-            marker.tripUpdate.stopTimeUpdate[marker.vehicle.currentStopSequence]
-              .stopName,
+            marker.tripUpdate?.stopTimeUpdate[
+              marker.vehicle?.currentStopSequence
+            ]?.stopName || "無効データ(クライアント)",
         }));
         setMarkers(formattedMarkers);
       }
