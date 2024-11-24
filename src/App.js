@@ -21,33 +21,41 @@ const App = () => {
   const [markers, setMarkers] = useState([]);
   const [activeMarkerId, setActiveMarkerId] = useState(null); // 開いているInfoWindowFを追跡
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const response = await axios.get("https://okayama-bus-json.vercel.app");
-        const data = response.data;
+  const fetchMarkers = async () => {
+    try {
+      const response = await axios.get("https://okayama-bus-json.vercel.app");
+      const data = response.data;
 
-        if (data && data.length > 0) {
+      if (data && data.length > 0) {
           // マーカー情報を状態として保存
-          const formattedMarkers = data.map((marker) => ({
+        const formattedMarkers = data.map((marker) => ({
             id: marker.vehicle.vehicle.label, // 一意のID
-            position: {
-              lat: marker.vehicle.position.latitude,
-              lng: marker.vehicle.position.longitude,
-            },
+          position: {
+            lat: marker.vehicle.position.latitude,
+            lng: marker.vehicle.position.longitude,
+          },
             title: marker.tripUpdate.trip.routeShortName,
-            icon: marker.icon,
+          icon: marker.icon,
             nextStopName:
               marker.tripUpdate.stopTimeUpdate[
                 marker.vehicle.currentStopSequence
               ].stopName,
-          }));
-          setMarkers(formattedMarkers);
-        }
-      } catch (error) {
-        console.error("Error fetching markers:", error);
+        }));
+        setMarkers(formattedMarkers);
       }
-    })();
+    } catch (error) {
+      console.error("Error fetching markers:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMarkers(); // 初回実行
+
+    const interval = setInterval(() => {
+      fetchMarkers(); // 20秒ごとに実行
+    }, 20000);
+
+    return () => clearInterval(interval); // クリーンアップ
   }, []);
 
   return (
