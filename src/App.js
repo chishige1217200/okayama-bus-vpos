@@ -22,6 +22,22 @@ const App = () => {
   const [activeMarkerId, setActiveMarkerId] = useState(null); // 開いているInfoWindowFを追跡
   const [isLoading, setIsLoading] = useState(true); // ローディング状態
 
+  // stopSequenceを基準に次のstopNameを取得する関数
+  const getNextStopName = (stops, currentSequence) => {
+    // 現在のstopSequenceのインデックスを取得
+    const currentIndex = stops.findIndex(
+      (stop) => stop.stopSequence === currentSequence
+    );
+
+    // 次のインデックスが存在する場合は、stopNameを返す
+    if (currentIndex !== -1 && currentIndex + 1 < stops.length) {
+      return stops[currentIndex + 1].stopName;
+    }
+
+    // 次のインデックスが存在しない場合は、現在のstopNameを返す
+    return stops[currentIndex].stopName;
+  };
+
   const fetchMarkers = async () => {
     try {
       const response = await axios.get("https://okayama-bus-json.vercel.app");
@@ -38,10 +54,10 @@ const App = () => {
           },
           title: marker.tripUpdate.trip.routeShortName,
           icon: marker.icon,
-          nextStopName:
-            marker.tripUpdate?.stopTimeUpdate[
-              marker.vehicle?.currentStopSequence
-            ]?.stopName || "無効データ(クライアント)",
+          nextStopName: getNextStopName(
+            marker.tripUpdate.stopTimeUpdate,
+            marker.vehicle.currentStopSequence
+          ),
         }));
         setMarkers(formattedMarkers);
       }
