@@ -19,8 +19,10 @@ const center = {
 
 const App = () => {
   const [markers, setMarkers] = useState([]);
-  const [activeMarkerId, setActiveMarkerId] = useState(null); // 開いているInfoWindowFを追跡
-  const [isLoading, setIsLoading] = useState(true); // ローディング状態
+  const [filteredMarkers, setFilteredMarkers] = useState([]); // 検索後のフィルタリング結果
+  const [searchQuery, setSearchQuery] = useState(""); // 検索キーワード
+  const [activeMarkerId, setActiveMarkerId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // stopSequenceを基準に次のstopNameを取得する関数
   const getNextStopName = (stops, currentSequence) => {
@@ -59,7 +61,21 @@ const App = () => {
             marker.vehicle.currentStopSequence
           ),
         }));
-        setMarkers(formattedMarkers);
+
+        setMarkers(formattedMarkers); // markersを更新
+
+        // 現在の検索キーワードに基づいてfilteredMarkersを更新
+        if (searchQuery === "") {
+          setFilteredMarkers(formattedMarkers); // 検索キーワードが空の場合はすべて表示
+        } else {
+          const lowerCaseQuery = searchQuery.toLowerCase();
+          const filtered = formattedMarkers.filter(
+            (marker) =>
+              marker.title.toLowerCase().includes(lowerCaseQuery) ||
+              marker.label.toLowerCase().includes(lowerCaseQuery)
+          );
+          setFilteredMarkers(filtered); // 検索結果をfilteredMarkersに反映
+        }
       }
     } catch (error) {
       console.error("Error fetching markers:", error);
@@ -76,7 +92,24 @@ const App = () => {
     }, 20000);
 
     return () => clearInterval(interval); // クリーンアップ
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 検索ロジック
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    if (query === "") {
+      setFilteredMarkers(markers); // 空白の場合はすべて表示
+    } else {
+      const lowerCaseQuery = query.toLowerCase();
+      const filtered = markers.filter(
+        (marker) =>
+          marker.title.toLowerCase().includes(lowerCaseQuery) ||
+          marker.label.toLowerCase().includes(lowerCaseQuery)
+      );
+      setFilteredMarkers(filtered);
+    }
+  };
 
   return (
     <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}>
@@ -125,8 +158,35 @@ const App = () => {
             </div>
           </div>
         )}
+        {/* 検索フォーム */}
+        <div
+          style={{
+            position: "absolute",
+            top: 10,
+            left: 10,
+            zIndex: 1000,
+            background: "white",
+            padding: "10px",
+            borderRadius: "8px",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+          }}
+        >
+          <input
+            type="text"
+            placeholder="検索 (例: 路線名または号車番号)"
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            style={{
+              width: "200px",
+              padding: "5px",
+              fontSize: "16px",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+            }}
+          />
+        </div>
         <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={17}>
-          {markers.map((marker) => (
+          {filteredMarkers.map((marker) => (
             <React.Fragment key={marker.id}>
               <MarkerF
                 position={marker.position}
