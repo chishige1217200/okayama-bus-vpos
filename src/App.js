@@ -4,6 +4,7 @@ import {
   InfoWindowF,
   LoadScript,
   MarkerF,
+  OverlayView,
 } from "@react-google-maps/api";
 import axios from "axios";
 
@@ -58,6 +59,7 @@ const App = () => {
             marker.tripUpdate.stopTimeUpdate,
             marker.vehicle.currentStopSequence
           ),
+          destinationStopName: marker.tripUpdate.trip.destinationStopName,
         }));
         setMarkers(formattedMarkers);
       }
@@ -128,6 +130,27 @@ const App = () => {
         <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={17}>
           {markers.map((marker) => (
             <React.Fragment key={marker.id}>
+              <OverlayView
+                position={marker.position}
+                mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+              >
+                <div
+                  style={{
+                    backgroundColor: "#3e3a39", // 背景色
+                    color: "white", // 文字色
+                    padding: "5px 10px", // テキスト周囲に余白を確保
+                    borderRadius: "5px", // 枠を角丸にする
+                    textAlign: "center", // テキストを中央揃え
+                    whiteSpace: "nowrap", // テキストを1行で表示
+                    fontSize: "14px", // 適切なフォントサイズ
+                    lineHeight: "1.5", // 行の高さを調整して中央揃えを自然にする
+                    transform: "translate(-50%, -300%)", // 中央揃えでマーカー上部に表示
+                    display: "inline-block", // ブロック幅の調整
+                  }}
+                >
+                  {marker.destinationStopName}
+                </div>
+              </OverlayView>
               <MarkerF
                 position={marker.position}
                 title={marker.title}
