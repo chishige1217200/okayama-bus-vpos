@@ -148,7 +148,9 @@ const App = () => {
                     display: "inline-block", // ブロック幅の調整
                   }}
                 >
-                  {marker.destinationStopName}
+                  {marker.title.includes("特急")
+                    ? `特急 ${marker.destinationStopName}`
+                    : marker.destinationStopName}
                 </div>
               </OverlayView>
               <MarkerF
