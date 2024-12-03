@@ -13,15 +13,12 @@ const containerStyle = {
   width: "100%",
 };
 
-const center = {
-  lat: 34.663,
-  lng: 133.925,
-};
-
 const App = () => {
   const [markers, setMarkers] = useState([]);
   const [activeMarkerId, setActiveMarkerId] = useState(null); // 開いているInfoWindowFを追跡
   const [isLoading, setIsLoading] = useState(true); // ローディング状態
+  const [center, setCenter] = useState({ lat: 34.663, lng: 133.925 }); // 初期値
+  const [userLocation, setUserLocation] = useState(null); // ユーザーの現在地
 
   // stopSequenceを基準に次のstopNameを取得する関数
   const getNextStopName = (stops, currentSequence) => {
@@ -36,7 +33,7 @@ const App = () => {
     }
 
     // 次のインデックスが存在しない場合は、現在のstopNameを返す
-    return stops[currentIndex].stopName;
+    return stops[currentIndex]?.stopName || "";
   };
 
   const fetchMarkers = async () => {
@@ -77,7 +74,24 @@ const App = () => {
       fetchMarkers(); // 20秒ごとに実行
     }, 20000);
 
-    return () => clearInterval(interval); // クリーンアップ
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setCenter({ lat: latitude, lng: longitude }); // 現在地を中心に設定
+          setUserLocation({ lat: latitude, lng: longitude }); // 現在地を保存
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+        }
+      );
+    } else {
+      console.warn("Geolocation is not supported by this browser.");
+    }
   }, []);
 
   return (
@@ -128,6 +142,16 @@ const App = () => {
           </div>
         )}
         <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={17}>
+          {userLocation && (
+            <MarkerF
+              position={userLocation}
+              icon={{
+                url: "https://maps.google.com/mapfiles/kml/shapes/man.png", // ユーザーの現在地を示すアイコン
+                scaledSize: new window.google.maps.Size(50, 50), // サイズ調整
+              }}
+              title="現在地"
+            />
+          )}
           {markers.map((marker) => (
             <React.Fragment key={marker.id}>
               <OverlayView
