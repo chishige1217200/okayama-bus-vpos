@@ -65,7 +65,7 @@
     opacity: 1;
   }
   100% {
-    transform: scale(4) translate(-3%, -3%); /* スケール時もずらす */
+    transform: scale(4) translate(-2%, -2%); /* スケール時もずらす */
     opacity: 0;
   }
 }
