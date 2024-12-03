@@ -42,24 +42,29 @@ const App = () => {
       const response = await axios.get("https://okayama-bus-json.vercel.app");
       const data = response.data;
 
-      if (data && data.length > 0) {
-        // マーカー情報を状態として保存
-        const formattedMarkers = data.map((marker) => ({
-          id: marker.vehicle.vehicle.id, // 一意のID
-          label: marker.vehicle.vehicle.label,
-          position: {
-            lat: marker.vehicle.position.latitude,
-            lng: marker.vehicle.position.longitude,
-          },
-          title: marker.tripUpdate.trip.routeShortName,
-          icon: marker.icon,
-          nextStopName: getNextStopName(
-            marker.tripUpdate.stopTimeUpdate,
-            marker.vehicle.currentStopSequence
-          ),
-          destinationStopName: marker.tripUpdate.trip.destinationStopName,
-        }));
-        setMarkers(formattedMarkers);
+      if (data) {
+        if (data.length > 0) {
+          // マーカー情報を状態として保存
+          const formattedMarkers = data.map((marker) => ({
+            id: marker.vehicle.vehicle.id, // 一意のID
+            label: marker.vehicle.vehicle.label,
+            position: {
+              lat: marker.vehicle.position.latitude,
+              lng: marker.vehicle.position.longitude,
+            },
+            title: marker.tripUpdate.trip.routeShortName,
+            icon: marker.icon,
+            nextStopName: getNextStopName(
+              marker.tripUpdate.stopTimeUpdate,
+              marker.vehicle.currentStopSequence
+            ),
+            destinationStopName: marker.tripUpdate.trip.destinationStopName,
+          }));
+          setMarkers(formattedMarkers);
+        } else {
+          // 運行終了時、全てのバスが非表示になるように
+          setMarkers([]);
+        }
       }
     } catch (error) {
       console.error("Error fetching markers:", error);
@@ -149,11 +154,7 @@ const App = () => {
               mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
             >
               <div className="pulse-container">
-                <img
-                  src="/bluedot.png"
-                  alt="現在地"
-                  className="pulse-dot"
-                />
+                <img src="/bluedot.png" alt="現在地" className="pulse-dot" />
                 <div className="pulse-ring"></div>
               </div>
             </OverlayView>
