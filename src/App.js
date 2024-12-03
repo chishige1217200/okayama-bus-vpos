@@ -148,8 +148,13 @@ const App = () => {
               position={userLocation}
               mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
             >
-              <div className="pulse-marker">
-                <img src="/source-bluedot.png" alt="現在地" />
+              <div className="pulse-container">
+                <img
+                  src="/bluedot.png"
+                  alt="現在地"
+                  className="pulse-dot"
+                />
+                <div className="pulse-ring"></div>
               </div>
             </OverlayView>
           )}
