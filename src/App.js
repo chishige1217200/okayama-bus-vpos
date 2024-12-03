@@ -7,6 +7,7 @@ import {
   OverlayView,
 } from "@react-google-maps/api";
 import axios from "axios";
+import "./App.css";
 
 const containerStyle = {
   height: "100vh",
@@ -143,14 +144,14 @@ const App = () => {
         )}
         <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={17}>
           {userLocation && (
-            <MarkerF
+            <OverlayView
               position={userLocation}
-              icon={{
-                url: "https://maps.google.com/mapfiles/kml/shapes/man.png", // ユーザーの現在地を示すアイコン
-                scaledSize: new window.google.maps.Size(50, 50), // サイズ調整
-              }}
-              title="現在地"
-            />
+              mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+            >
+              <div className="pulse-marker">
+                <img src="/source-bluedot.png" alt="現在地" />
+              </div>
+            </OverlayView>
           )}
           {markers.map((marker) => (
             <React.Fragment key={marker.id}>
