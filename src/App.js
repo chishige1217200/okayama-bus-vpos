@@ -7,21 +7,19 @@ import {
   OverlayView,
 } from "@react-google-maps/api";
 import axios from "axios";
+import "./App.css";
 
 const containerStyle = {
   height: "100vh",
   width: "100%",
 };
 
-const center = {
-  lat: 34.663,
-  lng: 133.925,
-};
-
 const App = () => {
   const [markers, setMarkers] = useState([]);
   const [activeMarkerId, setActiveMarkerId] = useState(null); // 開いているInfoWindowFを追跡
   const [isLoading, setIsLoading] = useState(true); // ローディング状態
+  const [center, setCenter] = useState({ lat: 34.663, lng: 133.925 }); // 初期値
+  const [userLocation, setUserLocation] = useState(null); // ユーザーの現在地
 
   // stopSequenceを基準に次のstopNameを取得する関数
   const getNextStopName = (stops, currentSequence) => {
@@ -36,7 +34,7 @@ const App = () => {
     }
 
     // 次のインデックスが存在しない場合は、現在のstopNameを返す
-    return stops[currentIndex].stopName;
+    return stops[currentIndex]?.stopName || "";
   };
 
   const fetchMarkers = async () => {
@@ -44,24 +42,29 @@ const App = () => {
       const response = await axios.get("https://okayama-bus-json.vercel.app");
       const data = response.data;
 
-      if (data && data.length > 0) {
-        // マーカー情報を状態として保存
-        const formattedMarkers = data.map((marker) => ({
-          id: marker.vehicle.vehicle.id, // 一意のID
-          label: marker.vehicle.vehicle.label,
-          position: {
-            lat: marker.vehicle.position.latitude,
-            lng: marker.vehicle.position.longitude,
-          },
-          title: marker.tripUpdate.trip.routeShortName,
-          icon: marker.icon,
-          nextStopName: getNextStopName(
-            marker.tripUpdate.stopTimeUpdate,
-            marker.vehicle.currentStopSequence
-          ),
-          destinationStopName: marker.tripUpdate.trip.destinationStopName,
-        }));
-        setMarkers(formattedMarkers);
+      if (data) {
+        if (data.length > 0) {
+          // マーカー情報を状態として保存
+          const formattedMarkers = data.map((marker) => ({
+            id: marker.vehicle.vehicle.id, // 一意のID
+            label: marker.vehicle.vehicle.label,
+            position: {
+              lat: marker.vehicle.position.latitude,
+              lng: marker.vehicle.position.longitude,
+            },
+            title: marker.tripUpdate.trip.routeShortName,
+            icon: marker.icon,
+            nextStopName: getNextStopName(
+              marker.tripUpdate.stopTimeUpdate,
+              marker.vehicle.currentStopSequence
+            ),
+            destinationStopName: marker.tripUpdate.trip.destinationStopName,
+          }));
+          setMarkers(formattedMarkers);
+        } else {
+          // 運行終了時、全てのバスが非表示になるように
+          setMarkers([]);
+        }
       }
     } catch (error) {
       console.error("Error fetching markers:", error);
@@ -77,7 +80,24 @@ const App = () => {
       fetchMarkers(); // 20秒ごとに実行
     }, 20000);
 
-    return () => clearInterval(interval); // クリーンアップ
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setCenter({ lat: latitude, lng: longitude }); // 現在地を中心に設定
+          setUserLocation({ lat: latitude, lng: longitude }); // 現在地を保存
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+        }
+      );
+    } else {
+      console.warn("Geolocation is not supported by this browser.");
+    }
   }, []);
 
   return (
@@ -128,6 +148,17 @@ const App = () => {
           </div>
         )}
         <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={17}>
+          {userLocation && (
+            <OverlayView
+              position={userLocation}
+              mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+            >
+              <div className="pulse-container">
+                <img src="/bluedot.png" alt="現在地" className="pulse-dot" />
+                <div className="pulse-ring"></div>
+              </div>
+            </OverlayView>
+          )}
           {markers.map((marker) => (
             <React.Fragment key={marker.id}>
               <OverlayView
