@@ -39,8 +39,10 @@ const App = () => {
 
   const fetchMarkers = async () => {
     try {
+      console.log("Fetching markers...");
       const response = await axios.get("https://okayama-bus-json.vercel.app");
       const data = response.data;
+      console.log("Markers fetched.");
 
       if (data) {
         if (data.length > 0) {
@@ -147,6 +149,20 @@ const App = () => {
             </div>
           </div>
         )}
+        <div
+          style={{
+            position: "absolute",
+            top: 10,
+            right: 60,
+            display: "flex",
+            zIndex: 5,
+            color: "white",
+          }}
+        >
+          <button className="google-style-btn" onClick={() => fetchMarkers()}>
+            更新
+          </button>
+        </div>
         <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={17}>
           {userLocation && (
             <OverlayView
