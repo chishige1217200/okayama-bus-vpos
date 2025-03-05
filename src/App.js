@@ -49,18 +49,24 @@ const App = () => {
           // マーカー情報を状態として保存
           const formattedMarkers = data.map((marker) => ({
             id: marker.vehicle.vehicle.id, // 一意のID
-            label: marker.vehicle.vehicle.label,
+            label: marker.vehicle.vehicle.label, // 車両番号
             position: {
-              lat: marker.vehicle.position.latitude,
-              lng: marker.vehicle.position.longitude,
+              lat: marker.vehicle.position.latitude, // 緯度
+              lng: marker.vehicle.position.longitude, // 経度
             },
-            title: marker.tripUpdate.trip.routeShortName,
+            title: marker.tripUpdate.trip.routeShortName, // 路線名
             icon: marker.icon,
             nextStopName: getNextStopName(
               marker.tripUpdate.stopTimeUpdate,
               marker.vehicle.currentStopSequence
-            ),
-            destinationStopName: marker.tripUpdate.trip.destinationStopName,
+            ), // 次の停留所
+            destinationStopName: marker.tripUpdate.trip.destinationStopName, // 行き先
+            delay: Math.floor(
+              marker.tripUpdate.stopTimeUpdate[
+                marker.vehicle.currentStopSequence
+              ].arrival.delay / 60
+            ), // 遅延時間（分）
+            occupancyStatus: marker.vehicle.occupancyStatus, // 混雑状況
           }));
           setMarkers(formattedMarkers);
         } else {
@@ -223,6 +229,12 @@ const App = () => {
                       {marker.label}号車
                       <br />
                       <b>次は {marker.nextStopName}</b>
+                      <br />
+                      {marker.delay > 0
+                        ? "約" + marker.delay + "分遅れ"
+                        : "ほぼ定刻"}
+                      <br />
+                      {marker.occupancyStatus}
                       <br />
                       <a
                         href={
