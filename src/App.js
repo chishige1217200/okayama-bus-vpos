@@ -245,7 +245,7 @@ const App = () => {
                       <br />
                       <b>次は {marker.nextStopName}</b>
                       <br />
-                      {marker.delay
+                      {marker.delay !== undefined && marker.delay !== null
                         ? marker.delay > 0
                           ? "約" + marker.delay + "分遅れ"
                           : "ほぼ定刻"
