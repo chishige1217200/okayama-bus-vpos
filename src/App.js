@@ -49,6 +49,11 @@ const App = () => {
       return Math.floor(stops[currentIndex].arrival.delay / 60) || null; // 正常に遅れ時分が取得できない場合はnull
     }
 
+    // 次のインデックスが存在する場合は、次の遅れ時分を返す
+    if (currentIndex !== -1 && currentIndex + 1 < stops.length) {
+      return Math.floor(stops[currentIndex + 1].arrival.delay / 60) || null; // 正常に遅れ時分が取得できない場合はnull
+    }
+
     return null; // 正常に遅れ時分が取得できない場合はnull
   };
 
