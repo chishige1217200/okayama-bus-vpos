@@ -232,9 +232,9 @@ const App = () => {
               />
               {activeMarkerId === marker.id && (
                 <InfoWindowF
-                  position={{
-                    lat: marker.position.lat + 0.0005, // 緯度を微増して上方向にずらす
-                    lng: marker.position.lng, // 経度はそのまま
+                  position={marker.position} // マーカー座標を指定
+                  options={{
+                    pixelOffset: new window.google.maps.Size(0, -100), // マーカーとの相対位置を指定
                   }}
                   onCloseClick={() => setActiveMarkerId(null)} // 閉じるときにリセット
                 >
